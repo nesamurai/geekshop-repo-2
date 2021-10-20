@@ -34,3 +34,7 @@ def registration(request):
         form = forms.UserRegistrationForm()
     title = 'GeekShop - Регистрация'
     return render(request, 'users/registration.html', {'title': title, 'form': form})
+
+def logout(request):
+    auth.logout(request)
+    return HttpResponseRedirect(reverse('index'))
