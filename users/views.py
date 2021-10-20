@@ -23,5 +23,14 @@ def login(request):
     return render(request, 'users/login.html', {'title': title, 'form': form})
 
 def registration(request):
+    if request.method == 'POST':
+        form = forms.UserRegistrationForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('users:login'))
+        else:
+            print(form.errors)
+    else:
+        form = forms.UserRegistrationForm()
     title = 'GeekShop - Регистрация'
-    return render(request, 'users/registration.html', {'title': title})
+    return render(request, 'users/registration.html', {'title': title, 'form': form})
