@@ -1,9 +1,26 @@
-from django.shortcuts import render
+from django.contrib import auth
+from django.shortcuts import render, HttpResponseRedirect
+from django.urls import reverse
 
-# Create your views here.
+from . import forms
+
+
 def login(request):
+    if request.method == 'POST':
+        form = forms.UserLoginForm(data=request.POST)
+        if form.is_valid():
+            username = request.POST['username']
+            password = request.POST['password']
+            user = auth.authenticate(username=username, password=password)
+            if user and user.is_active:
+                auth.login(request, user)
+                return HttpResponseRedirect(reverse('index'))
+        else:
+            print(form.errors)
+    else:
+        form = forms.UserLoginForm()
     title = 'GeekShop - Авторизация'
-    return render(request, 'users/login.html', {'title': title})
+    return render(request, 'users/login.html', {'title': title, 'form': form})
 
 def registration(request):
     title = 'GeekShop - Регистрация'
