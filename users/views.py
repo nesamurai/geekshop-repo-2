@@ -1,4 +1,4 @@
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse
 
@@ -15,8 +15,6 @@ def login(request):
             if user and user.is_active:
                 auth.login(request, user)
                 return HttpResponseRedirect(reverse('index'))
-        else:
-            print(form.errors)
     else:
         form = forms.UserLoginForm()
     title = 'GeekShop - Авторизация'
@@ -27,9 +25,9 @@ def registration(request):
         form = forms.UserRegistrationForm(data=request.POST)
         if form.is_valid():
             form.save()
+            messages.add_message(request, messages.SUCCESS, "Вы успешно зарегистрировались!")
+            # messages.success(request, 'Вы успешно зарегистрировались!')
             return HttpResponseRedirect(reverse('users:login'))
-        else:
-            print(form.errors)
     else:
         form = forms.UserRegistrationForm()
     title = 'GeekShop - Регистрация'
