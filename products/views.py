@@ -7,9 +7,12 @@ def index(request):
     title = 'GeekShop'
     return render(request, 'products/index.html', {'title': title})
 
-def products(request):
+def products(request, category_id=None):
     title = 'GeekShop - Каталог'
-    products = Product.objects.all()
     categories = ProductCategory.objects.all()
+    if category_id:
+        products = Product.objects.filter(category_id=category_id)
+    else:
+        products = Product.objects.all()
     return render(request, 'products/products.html', {'title': title, 'products': products,
                                                                     'categories': categories})
