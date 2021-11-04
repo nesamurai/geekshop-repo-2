@@ -15,5 +15,13 @@ def products(request, category_id=None, page=1):
         products = Product.objects.filter(category_id=category_id)
     else:
         products = Product.objects.all()
-    return render(request, 'products/products.html', {'title': title, 'products': products,
-                                                                    'categories': categories})
+    paginator = Paginator(products, 3)
+    try:
+        products_paginator = paginator.page(page)
+    except PageNotAnInteger:
+        products_paginator = paginator.page(1)
+    except EmptyPage:
+        products_paginator = paginator.page(paginator.num_pages)
+    return render(request, 'products/products.html', {'title': title,
+                                                        'products': products_paginator,
+                                                        'categories': categories})
