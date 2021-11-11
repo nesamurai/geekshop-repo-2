@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse
 from django.conf import settings
+from django.db import transaction
 
 from . import forms
 from baskets.models import Basket
@@ -43,19 +44,23 @@ def registration(request):
     return render(request, 'users/registration.html', {'title': title, 'form': form})
 
 
+@transaction.atomic
 @login_required
 def profile(request):
     user = request.user
     if request.method == 'POST':
-        form = forms.UserProfileForm(instance=user, files=request.FILES, data=request.POST)
-        if form.is_valid():
-            form.save()
+        edit_form = forms.UserProfileForm(instance=user, files=request.FILES, data=request.POST)
+        profile_form = forms.ShopUserProfileEditForm(data=request.POST, instance=user.shopuserprofile)
+        if edit_form.is_valid() and profile_form.is_valid():
+            edit_form.save()
             return HttpResponseRedirect(reverse('users:profile'))
     else:
-        form = forms.UserProfileForm(instance=user)
+        edit_form = forms.UserProfileForm(instance=user)
+        profile_form = forms.ShopUserProfileEditForm(instance=user.shopuserprofile)
     title = 'GeekShop - Профиль'
     baskets = Basket.objects.filter(user=user)
-    return render(request, 'users/profile.html', {'title': title, 'form': form, 'baskets': baskets})
+    return render(request, 'users/profile.html', {'title': title,
+    'edit_form': edit_form, 'profile_form': profile_form, 'baskets': baskets})
 
 
 def logout(request):
@@ -77,7 +82,7 @@ def verification(request, email, activation_key):
         if user.activation_key == activation_key and not user.is_activation_key_expired():
             user.is_active = True
             user.save()
-            auth.login(request, user)
+            auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return render(request, 'users/verification.html')
         else:
             messages.error(request, "Ошибка при активации пользователя")
