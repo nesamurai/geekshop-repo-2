@@ -1,5 +1,6 @@
 from django.db import models
 
+from products.models import Product
 from users.models import User
 
 # Create your models here.
@@ -57,3 +58,12 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, models.CASCADE, related_name='orderitems')
+    product = models.ForeignKey(Product, models.CASCADE, verbose_name='продукт')
+    quantity = models.PositiveIntegerField(verbose_name='количество', default=0)
+
+    @staticmethod
+    def get_item(pk):
+        return OrderItem.objects.filter(pk=pk).first()
+
+    def get_product_cost(self):
+        return self.product.price * self.quantity
