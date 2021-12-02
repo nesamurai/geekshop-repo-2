@@ -1,6 +1,7 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, CharField
 
 from orders.models import Order, OrderItem
+from products.models import Product
 
 
 class OrderForm(ModelForm):
@@ -16,12 +17,14 @@ class OrderForm(ModelForm):
 
 
 class OrderItemForm(ModelForm):
-    price = forms.CharField(label='цена', required=False)
+    price = CharField(label='цена', required=False)
     class Meta:
         model = OrderItem
         fields = ['order', 'product', 'quantity']
 
     def __init__(self, *args, **kwargs):
         super(OrderItemForm, self).__init__(*args, **kwargs)
+        # line from 5 lesson
+        self.fields['product'].queryset = Product.get_items()
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control py-4'

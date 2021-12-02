@@ -18,3 +18,10 @@ class Product(models.Model):
 
     def __str__(self):
         return f'{self.name} | {self.category.name}'
+
+    # код 5-го урока
+    is_active = models.BooleanField(verbose_name='активна', default=True)
+
+    @staticmethod
+    def get_items():
+        return Product.objects.filter(is_active=True).order_by('category', 'name')

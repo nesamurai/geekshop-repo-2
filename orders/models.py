@@ -55,6 +55,24 @@ class Order(models.Model):
         self.is_active = False
         self.save()
 
+    # method added at lesson7
+    def get_summary(self):
+        items = self.orderitems.select_related()
+        return {
+            'total_cost': , sum(list(map(lambda x: x.quantity * x.product.price, items))),
+            'total_quantity': sum(list(map(lambda x: x.quantity, items)))
+        }
+
+
+# class added in lesson4
+class OrderItemQuerySet(models.QuerySet):
+
+    def delete(self):
+        for object in self:
+            object.product.quantity += object.quantity
+            object.product.save()
+        super(OrderItemQuerySet, self).delete(*args, **kwargs)
+
 
 class OrderItem(models.Model):
     # line added in lesson4
@@ -70,13 +88,3 @@ class OrderItem(models.Model):
 
     def get_product_cost(self):
         return self.product.price * self.quantity
-
-
-# class added in lesson4
-class OrderItemQuerySet(models.QuerySet):
-
-    def delete(self):
-        for object in self:
-            object.product.quantity += object.quantity
-            object.product.save()
-        super(OrderItemQuerySet, self).delete(*args, **kwargs)
