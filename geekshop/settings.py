@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from os import name
 from pathlib import Path
 
 import environ
@@ -225,7 +226,7 @@ if DEBUG:
         'template_profiler_panel.panels.template.TemplateProfilerPanel',
     ]
 
-if os.name == 'posix':
+if name == 'posix':
     CACHE_MIDDLEWARE_ALIAS = 'default'
     CACHE_MIDDLEWARE_SECONDS = 60
     CACHE_MIDDLEWARE_KEY_PREFIX = 'geekshop'
