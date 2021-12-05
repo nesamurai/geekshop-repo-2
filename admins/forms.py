@@ -2,6 +2,7 @@ from django import forms
 
 from users.forms import UserRegistrationForm, UserProfileForm
 from users.models import User
+from products.models import ProductCategory
 
 
 class UserAdminRegistrationForm(UserRegistrationForm):
@@ -20,3 +21,15 @@ class UserAdminProfileForm(UserProfileForm):
     email = forms.CharField(widget=forms.EmailInput(attrs={
         'class': 'form-control py-4'
     }))
+
+
+# class added at lesson8
+class ProductCategoryEditForm(forms.ModelForm):
+    discount = forms.IntegerField(label='скидка', required=False, min_value=0, max_value=90, initial=0)
+    class Meta:
+        model = ProductCategory
+        exclude = ()
+    def __init__(self, *args, **kwargs):
+        super(ProductCategoryEditForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            fields.widget.attrs['class'] = 'form-control py-4'
