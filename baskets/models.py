@@ -5,6 +5,9 @@ from users.models import User
 
 
 class Basket(models.Model):
+    # line added in lesson4
+    objects = BasketQuerySet.as_manager()
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=0)
@@ -27,6 +30,31 @@ class Basket(models.Model):
         return sum(basket.quantity for basket in self.baskets)
 
     # method from 3 lesson on level 2
-    # @staticmethod
-    # def get_items(pk):
-    #     return Basket.objects.filter(pk=pk).first()
+    @staticmethod
+    def get_item(pk):
+        return Basket.objects.filter(pk=pk).first()
+
+    # method added in lesson4
+    def delete(self):
+        self.product.quantity += self.quantity
+        self.product.save()
+        super(Basket, self).delete()
+
+    # method added in lesson4
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.product.quantity -= self.quantity - self.__class__.get_item(self.pk).quantity
+        else:
+            self.product.quantity -= self.quantity
+        self.product.save()
+        super(Basket, self).save(*args, **kwargs)
+
+
+# class added in lesson4
+class BasketQuerySet(models.QuerySet):
+
+    def delete(self):
+        for object in self:
+            object.product.quantity += object.quantity
+            object.product.save()
+        super(BasketQuerySet, self).delete(*args, **kwargs)
